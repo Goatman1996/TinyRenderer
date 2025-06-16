@@ -9,70 +9,6 @@ Model *model = NULL;
 const int width = 1000;
 const int height = 1000;
 
-// 这个方法的 精细度，由步长决定，并不理想
-void line_0(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
-{
-
-	for (float step = 0; step < 1; step += 0.01)
-	{
-		int x = x0 + step * (x1 - x0);
-		int y = y0 + step * (y1 - y0);
-		image.set(x, y, color);
-	}
-}
-
-// 这个方法是遍历x，根据x算出比值，根据比值求y，所以，y>x的时候。y会失真
-// 且x0 > x1时，对x的遍历将会进不去
-void line_1(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
-{
-
-	for (int x = x0; x <= x1; x++)
-	{
-		float t = (x - x0) / static_cast<float>(x1 - x0);
-		int y = static_cast<int>(y0 + t * (y1 - y0));
-		image.set(x, y, color);
-	}
-}
-
-// 这个方法得出来的结果是完美的
-// 但是性能不好，如太多的除法等
-void line_2(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
-{
-	bool swaped = false;
-	if (std::abs(x0 - x1) < std::abs(y0 - y1))
-	{
-		// dy > dx
-		// 则交换 x 和 y，交换后，后面继续使用x进行遍历
-		std::swap(x0, y0);
-		std::swap(x1, y1);
-		swaped = true;
-	}
-	if (x0 > x1)
-	{
-		// 如果起点比终点大，会进不去遍历
-		// 所以交换位置，以便后面继续从小到大的遍历规则
-		std::swap(x0, x1);
-		std::swap(y0, y1);
-	}
-
-	// 几乎和之前的遍历一样
-	for (int x = x0; x <= x1; x++)
-	{
-		float t = (x - x0) / static_cast<float>(x1 - x0);
-		int y = static_cast<int>(y0 * (1.f - t) + y1 * t);
-
-		// 交换过x 和 y的，交换回来
-		if (swaped)
-		{
-			image.set(y, x, color);
-		}
-		else
-		{
-			image.set(x, y, color);
-		}
-	}
-}
-
 // Bresenham’s Line Drawing Algorithm
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
 {
@@ -141,10 +77,6 @@ int main(int argc, char **argv)
 	std::string outFile = argv[1];
 
 	TGAImage image(width, height, TGAImage::RGB);
-	// line(13, 20, 80, 40, image, white);
-	// line(20, 13, 40, 80, image, red);
-	// line(80, 40, 13, 20, image, red);
-	// line(30, 30, 70, 70, image, white);
 
 	// 加载模型
 	model = new Model(argv[2]);
