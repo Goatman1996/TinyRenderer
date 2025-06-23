@@ -50,7 +50,8 @@ struct TGAColor {
 		}
 	}
 
-	TGAColor & operator =(const TGAColor &c) {
+	TGAColor &operator=(const TGAColor &c)
+	{
 		if (this != &c) {
 			bytespp = c.bytespp;
 			val = c.val;
